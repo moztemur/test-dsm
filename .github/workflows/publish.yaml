@@ -39,13 +39,6 @@ jobs:
       - name: Bump Version
         run: |
           npm version patch --no-git-tag-version
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish to NPM
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Get Version
         id: get_version
@@ -59,6 +52,11 @@ jobs:
           git commit -m "ci: bump version to v${{ steps.get_version.outputs.version }}"
           git tag "v${{ steps.get_version.outputs.version }}"
           git push origin master --tags
+      
+      - name: Publish to NPM
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
