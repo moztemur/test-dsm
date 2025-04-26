@@ -49,6 +49,7 @@ jobs:
       #     git commit -m "ci: bump version to v${{ steps.get_version.outputs.version }}"
       #     git tag "v${{ steps.get_version.outputs.version }}"
       #     git push origin master --tags
+      
 
       - name: 'Automated Version Bump'
         id: version-bump
