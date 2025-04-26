@@ -33,25 +33,34 @@ jobs:
       - name: Run Tests
         run: npm test
 
+      # - name: Bump Version
+      #   run: |
+      #     npm version patch --no-git-tag-version
+
+      # - name: Get Version
+      #   id: get_version
+      #   run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      # - name: Commit bumped version and create git tag
+      #   run: |
+      #     git config --global user.name 'github-actions[bot]'
+      #     git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+      #     git add package.json package-lock.json
+      #     git commit -m "ci: bump version to v${{ steps.get_version.outputs.version }}"
+      #     git tag "v${{ steps.get_version.outputs.version }}"
+      #     git push origin master --tags
+
+      - name: 'Automated Version Bump'
+        id: version-bump
+        uses: 'phips28/gh-action-bump-version@master'
+        with:
+          tag-prefix: 'v'
+          commit-message: 'ci: bump version to v{{version}} [skip ci]'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build Package
         run: npm run build
-
-      - name: Bump Version
-        run: |
-          npm version patch --no-git-tag-version
-
-      - name: Get Version
-        id: get_version
-        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-
-      - name: Commit bumped version and create git tag
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add package.json package-lock.json
-          git commit -m "ci: bump version to v${{ steps.get_version.outputs.version }}"
-          git tag "v${{ steps.get_version.outputs.version }}"
-          git push origin master --tags
       
       - name: Publish to NPM
         run: npm publish
