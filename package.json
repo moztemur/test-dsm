@@ -18,7 +18,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "lint": "eslint 'src/**/*.ts'"
+    "lint": "eslint 'src/**/*.ts'",
+    "test": "echo 'No tests specified' && exit 0"
   },
   "dependencies": {
     "debug": "^4.4.0"
