@@ -50,16 +50,6 @@ jobs:
           git tag "v${{ steps.get_version.outputs.version }}"
           git push origin master --tags
 
-
-      # - name: 'Automated Version Bump'
-      #   id: version-bump
-      #   uses: 'phips28/gh-action-bump-version@master'
-      #   with:
-      #     tag-prefix: 'v'
-      #     commit-message: 'ci: bump version to v{{version}} [skip ci]'
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build Package
         run: npm run build
       
