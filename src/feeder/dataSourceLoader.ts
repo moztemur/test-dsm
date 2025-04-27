@@ -1,28 +1,41 @@
 import { TypeDataSource } from '../@types/dataSource';
 import { createLogger } from '../utils/logger';
-import { importTsModule } from '../utils/tsutilPrivate';
+import * as path from 'path';
 
 const log = createLogger('feeder');
 
-const importDataSourceModule = async (dataSourcesModulePath: string, dataSourceImporter: DataSourceImporter) => {
-  let dataSourceModule = await dataSourceImporter(dataSourcesModulePath);
-
-  log('data source module', dataSourceModule);
-  return dataSourceModule;
-}
-
-const getDataSourceImporter = (dataSourcesModulePath: string, compilerOptions: object) => {
-  let dataSourceImporter;
-  if (dataSourcesModulePath.endsWith('.ts')) {
-    dataSourceImporter = (modulePath: string) => importTsModule(modulePath, compilerOptions);
-  } else {
-    dataSourceImporter = (modulePath: string) => import(modulePath);
+// Helper to safely require a module
+const safeRequireSync = (moduleName: string) => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require(moduleName);
+  } catch (err) {
+    log(`Cannot load transpiler: ${moduleName}`);
+    log(`Please install it: npm install ${moduleName}`);
+    process.exit(1);
   }
-  return dataSourceImporter;
 }
 
-const initializeDataSources = async (dataSourcesModulePath: string, dataSourceImporter: DataSourceImporter): Promise<TypeDataSource[]> => {
-  const dataSourcesModule = await importDataSourceModule(dataSourcesModulePath, dataSourceImporter);
+const importDataSourceModule = async (dataSourcesModulePath: string, transpiler: string) => {
+  try {
+    safeRequireSync(transpiler);
+    
+    const absUserModulePath = path.resolve(dataSourcesModulePath);
+
+   // Use `require` instead of `import` after loading ts-node/register
+   // eslint-disable-next-line @typescript-eslint/no-require-imports
+   const moduleToRun = require(absUserModulePath);
+
+    return moduleToRun;
+  } catch (error) {
+    console.error('Error importing data sources module:', error);
+    throw error;
+  }
+}
+
+
+const initializeDataSources = async (dataSourcesModulePath: string,  transpiler: string): Promise<TypeDataSource[]> => {
+  const dataSourcesModule = await importDataSourceModule(dataSourcesModulePath,  transpiler);
   log('data sources module', dataSourcesModule);
   if (dataSourcesModule === undefined) {
     throw new Error('dataSourcesModule not found in path:' + dataSourcesModulePath)
@@ -37,5 +50,4 @@ const initializeDataSources = async (dataSourcesModulePath: string, dataSourceIm
 
 export {
   initializeDataSources,
-  getDataSourceImporter,
 }

@@ -1,6 +1,5 @@
 import * as producer from './producer';
 import * as consumer from './consumer';
-import * as tsutil from './utils/tsutil';
 
-export { producer, consumer, tsutil }
+export { producer, consumer }
 export type { TypeDataSource } from './@types/dataSource';

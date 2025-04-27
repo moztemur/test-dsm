@@ -1,4 +1,4 @@
-import { getDataSourceImporter, initializeDataSources } from './dataSourceLoader';
+import { initializeDataSources } from './dataSourceLoader';
 import * as queueClient from '../queue/client';
 import { getDestroyQueueName } from '../queue/util';
 import { TypeDataSource } from '../@types/dataSource';
@@ -21,7 +21,8 @@ const feedDataSourceQueueByIntervals = async (dataSource: TypeDataSource) => {
  
     await getAndDestroyDataSourceFromQueue(dataSource);
 
-    await new Promise(resolve => setTimeout(resolve, dataSource.feedInterval));
+    let feedInterval = dataSource.feedInterval || 200;
+    await new Promise(resolve => setTimeout(resolve, feedInterval));
   }
 }
 
@@ -32,8 +33,10 @@ const createAndAddDataSourcesToQueue = async (
   const { dataSourceQueueName, createDataSourceInstances } = dataSource;
   const count = await queueClient.queueSize(dataSourceQueueName);
 
-  if (count < dataSource.minimumRequiredDataSourceInstanceCount) {
-    log(`data source count is less than threshold, adding 1 more: ${count} < ${dataSource.minimumRequiredDataSourceInstanceCount}`);
+  let minimumRequiredDataSourceInstanceCount = dataSource.minimumRequiredDataSourceInstanceCount || 1;
+
+  if (count < minimumRequiredDataSourceInstanceCount) {
+    log(`data source count is less than threshold, adding 1 more: ${count} < ${minimumRequiredDataSourceInstanceCount}`);
 
     const dataSources = await createDataSourceInstances(dataSourceCountToCreate);
     if (dataSources.length === 0) {
@@ -60,9 +63,13 @@ const initDataSourceFeeder = async () => {
 
   await Promise.all(dataSources.map(async (dataSource) => {
     log(`creating data source ${dataSource}`);
-    await dataSource.setupDataSource();
+    let dataSourceSetup = dataSource.setupDataSource || (() => Promise.resolve());
+    await dataSourceSetup();
 
-    await createAndAddDataSourcesToQueue(dataSource, dataSource.initialDataSourceInstanceCount);
+    let initialDataSourceInstanceCount = dataSource.initialDataSourceInstanceCount || 1;
+    log(`creating initial data source instances ${initialDataSourceInstanceCount}`);
+
+    await createAndAddDataSourcesToQueue(dataSource, initialDataSourceInstanceCount);
 
     feedDataSourceQueueByIntervals(dataSource)
   }));
@@ -70,16 +77,14 @@ const initDataSourceFeeder = async () => {
 
 const terminateDataSourceFeeder = async () => {
   await Promise.all(dataSources.map(async (dataSource) => {
-    await dataSource.cleanupDataSource();
+    let dataSourceCleanup = dataSource.cleanupDataSource || (() => Promise.resolve());
+    await dataSourceCleanup();
   }));
 }
 
 (async () => {
-  const [,,dataSourcesModulePath, compilerOptions] = process.argv as string[];
-
-  let dataSourceImporter = getDataSourceImporter(dataSourcesModulePath, JSON.parse(compilerOptions));
-
-  dataSources = await initializeDataSources(dataSourcesModulePath, dataSourceImporter);
+  const [,,dataSourcesModulePath, transpiler] = process.argv as string[];
+  dataSources = await initializeDataSources(dataSourcesModulePath, transpiler);
   await initDataSourceFeeder();
   process.send?.('READY')
 })();

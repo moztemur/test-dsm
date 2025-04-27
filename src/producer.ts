@@ -10,15 +10,17 @@ let feeder: ChildProcess;
 let queueServer: ChildProcess;
 
 const init = async (dataSourcesModulePath: string, options: {
-  compilerOptions?: object
-} = {}) => {
+  transpiler: string
+} = {
+  transpiler: 'ts-node/register',
+}) => {
   log('init data source producer')
   const { port } = getDataSourceQueueHostPort()
   const queueServerPortString = port + '';
   queueServer = await createChildProcess(path.resolve(__dirname, 'queue/server'),
     [queueServerPortString]);
 
-  feeder = await createChildProcess(path.resolve(__dirname, 'feeder/index'), [dataSourcesModulePath, JSON.stringify(options.compilerOptions || {})]);
+  feeder = await createChildProcess(path.resolve(__dirname, 'feeder/index'), [dataSourcesModulePath, options.transpiler]);
 }
 
 const terminate = () => {
