@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "debug": "^4.4.0",
-    "queue-port": "^0.0.4"
+    "queue-port": "^0.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",

@@ -2,7 +2,7 @@ import http from 'http';
 import { getDataSourceQueueHostPort } from './util';
 
 type Enqueue = (queueName: string, items: any[]) => Promise<void>
-type Dequeue = <T = any>(queueName: string, count: number, timeoutMs?: number) => Promise<T[]>
+type Dequeue = <T = any>(queueName: string, count?: number, timeout?: number) => Promise<T[]>
 type QueueSize = (queueName: string) => Promise<number>
 
 const { hostname, port } = getDataSourceQueueHostPort()
@@ -48,8 +48,8 @@ export const enqueue: Enqueue = async (queueName, items) =>{
   await request('POST', `/enqueue/${encodeURIComponent(queueName)}`, { items });
 }
 
-export const dequeue: Dequeue = (queueName, count, timeoutMs = 0) => {
-  return request('POST', `/dequeue/${encodeURIComponent(queueName)}`, { count, timeoutMs });
+export const dequeue: Dequeue = (queueName, count = 1, timeout = -1) => {
+  return request('POST', `/dequeue/${encodeURIComponent(queueName)}`, { count, timeout });
 }
 
 export const queueSize: QueueSize = async (queueName) => {

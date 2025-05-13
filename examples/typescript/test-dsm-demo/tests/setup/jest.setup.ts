@@ -7,7 +7,7 @@ let databases: string[] = [];
 beforeAll(async () => {
   console.log('Starting test server...');
   const [dataSourcePostgres] = getDataSources();
-  databases = await consumer.dequeueToUse(dataSourcePostgres, 1)
+  databases = await consumer.dequeueToUse(dataSourcePostgres)
 
   const [database] = databases
 

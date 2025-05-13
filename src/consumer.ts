@@ -2,8 +2,8 @@ import { TypeDataSource } from './@types/dataSource';
 import * as queueClient from './queue/client';
 import { getDestroyQueueName } from './queue/util';
 
-const dequeueToUse = async (dataSource: TypeDataSource, count: number): Promise<string[]> => {
-  const dataSources = await queueClient.dequeue(dataSource.dataSourceQueueName, count, 0)
+const dequeueToUse = async (dataSource: TypeDataSource, count: number = 1): Promise<string[]> => {
+  const dataSources = await queueClient.dequeue(dataSource.dataSourceQueueName, count)
   return dataSources;
 }
 
