@@ -15,10 +15,9 @@ const init = async (dataSourcesModulePath: string, options: {
   transpiler: 'ts-node/register',
 }) => {
   log('init data source producer')
-  const { port } = getDataSourceQueueHostPort()
-  const queueServerPortString = port + '';
+  const { port, enableQueueDashboard, dashboardServerPort } = getDataSourceQueueHostPort()
   queueServer = await createChildProcess(path.resolve(__dirname, 'queue/server'),
-    [queueServerPortString]);
+    [port + '', enableQueueDashboard ? 'true' : 'false', dashboardServerPort + '']);
 
   feeder = await createChildProcess(path.resolve(__dirname, 'feeder/index'), [dataSourcesModulePath, options.transpiler]);
 }
