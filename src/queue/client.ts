@@ -7,10 +7,13 @@ type QueueSize = (queueName: string) => Promise<number>
 
 const { hostname, port } = getDataSourceQueueHostPort()
 
+const agent = new http.Agent({ keepAlive: true });
+
 const request = <T = any>(method: string, path: string, body?: any): Promise<T> => {
   return new Promise((resolve, reject) => {
     const data = body ? JSON.stringify(body) : '';
     const options: http.RequestOptions = {
+      agent,
       method,
       hostname,
       port,
