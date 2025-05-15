@@ -29,7 +29,7 @@ The library provides two main components:
 
 ### Producer
 
-You need to initialize the producer with a data source instance provider inside your test runner's global setup. What the producer does is to initialize a basic queue server and initialize the given data source instance providers (let's call it 'feeder'). The producer will be responsible for creating the data source instances and feeding them to the consumer through the queue server. Queue Server and Feeder are basically two child processes forked by the producer.
+You need to initialize the producer with a data source instance provider inside your test runner's global setup. What the producer does is to initialize a basic [queue server](https://www.npmjs.com/package/queue-port) and initialize the given data source instance providers (let's call it 'feeder'). The producer will be responsible for creating the data source instances and feeding them to the consumer through the queue server. Queue Server and Feeder are basically two child processes forked by the producer.
 
 Example with TypeScript with Jest:
 
@@ -63,6 +63,15 @@ The queue server is a simple in-memory queue that allows the producer to send da
 ```
 DATA_SOURCE_QUEUE_HOST  # default: localhost
 DATA_SOURCE_QUEUE_PORT  # default: 8765
+```
+
+The queue server uses the `queue-port` library, which is a simple in-memory queue with HTTP interface. You can find more information about the `queue-port` library [here](https://www.npmjs.com/package/queue-port).
+
+It also provides two more environment variables to enable the queue dashboard if you need it:
+
+```
+ENABLE_QUEUE_DASHBOARD  # default: false
+QUEUE_DASHBOARD_PORT    # default: 8760
 ```
 
 #### Data Source Instance Provider

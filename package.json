@@ -6,6 +6,16 @@
   "license": "MIT",
   "author": "Mahmut Oztemur",
   "description": "A package to provide data sources to integration tests",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/moztemur/test-dsm.git"
+  },
+  "keywords": [
+    "test",
+    "data source manager",
+    "integration",
+    "jest"
+  ],
   "files": [
     "dist"
   ],
